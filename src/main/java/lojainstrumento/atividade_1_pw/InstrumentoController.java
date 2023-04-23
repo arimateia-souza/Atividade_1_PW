@@ -59,8 +59,38 @@ public class InstrumentoController {
         writer.println("</body>"+
                 "</html>"
         );
+    }
+    @RequestMapping(method = RequestMethod.GET, value = "/doListar")
+    public void listarTarefas(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+            /*Tarefa t = (Tarefa) request.getAttribute("tarefa");
+            System.out.println(t.toString());*/
+
+        var dao = new InstrumentoDao();
+        var writer = response.getWriter();
 
 
+
+        var listarInstrumentos = dao.listarTodos();
+        response.setContentType("text/HTML");
+
+        writer.println("<html>" +
+                "<body>");
+
+        for (var i : listarInstrumentos){
+            writer.println("<p> Nome: " +i.getNome() + "</p>");
+            writer.println("<p> Quantidade: " +i.getQtd() + "</p>");
+            writer.println("<p> Data de cadastro: " + i.getDataCadastro() + "</p> ");
+            writer.println("<a href='doEditarPage?id="+i.getId()+"'>Editar</a>");
+            writer.println("<a href='doExcluir?id="+i.getId()+"'>Excluir</a>");
+        }
+
+        writer.println("</body>" +
+                "</html>");
     }
 
+
 }
+
+
+

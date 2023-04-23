@@ -2,9 +2,12 @@ package lojainstrumento.atividade_1_pw;
 
 import java.net.URISyntaxException;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class InstrumentoDao {
+
 
     public Instrumento getInstrumentoById(Integer id) {
         Connection connection = null;
@@ -33,6 +36,35 @@ public class InstrumentoDao {
         }
         return t;
     }
+
+    public List<Instrumento> listarTodos() {
+
+        Connection connection = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        List<Instrumento> listaInstrumentos = new ArrayList<>();
+
+        try {
+            connection = Conexao.getConnection();
+
+            stmt = connection.prepareStatement("select * from instrumento_tbl");
+            rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Instrumento t = new Instrumento(new Date(rs.getLong("datacadastro")), rs.getInt("id"));
+                t.setNome(rs.getString("nome"));
+                t.setQtd(rs.getInt("qtd"));
+                listaInstrumentos.add(t);
+            }
+            connection.close();
+
+        } catch (SQLException | URISyntaxException ex) {
+            // response.getWriter().append("Connection Failed! Check output console");
+        }
+
+        return listaInstrumentos;
+    }
+
 
     public void cadastrarInstrumento(Instrumento inst){
         Connection connection = null;
