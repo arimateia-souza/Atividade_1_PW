@@ -10,10 +10,51 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.io.IOException;
+import java.util.Date;
 
 @Controller
 public class InstrumentoController {
 
+    @RequestMapping(method = RequestMethod.POST, value = "/doAtualizar")
+    public void doAtualizar(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+        var id = Integer.parseInt(request.getParameter("id"));
+        var nome = request.getParameter("nome");
+        var quantidade = Integer.parseInt(request.getParameter("qtd"));
+        var dataCadastro = Long.parseLong(request.getParameter("dataCadastro"));
+
+        var Instrumento = new Instrumento(id, nome, quantidade, new Date(dataCadastro));
+
+        var dao = new InstrumentoDao();
+
+        dao.updateInstrumento(Instrumento);
+        response.sendRedirect("/doListar");
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/doEditarPage")
+    public void doEditarPage(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+        var id = Integer.parseInt(request.getParameter("id"));
+        var dao = new InstrumentoDao();
+
+        Instrumento i = dao.getInstrumentoById(id);
+
+        var writer = response.getWriter();
+
+        writer.println("<html>" +
+                "<body>" +  //manda para doAtualizar do metodo POST
+                "<form action='doAtualizar' method='post'>");
+        writer.println("<input type='hidden' name='id' value='"+i.getId()+"'>");
+        writer.println("<input type='text' name='nome' value='"+i.getNome()+"'>");
+        writer.println("<input type='number' name='qtd' value='"+i.getQtd()+"'>");
+        writer.println("<input type='hidden' name='dataCadastro' value='"+i.getDataCadastro().getTime()+"'>");
+        writer.println("<button type='submit'>Editar</button");
+
+
+        writer.println("</form>" +
+                "</body>" +
+                "<html>");
+    }
     @RequestMapping(value = "/doBuscar", method = RequestMethod.GET)
     public void doBuscar(HttpServletRequest request, HttpServletResponse response) throws IOException {
         var id = Integer.parseInt(request.getParameter("id"));
@@ -53,8 +94,8 @@ public class InstrumentoController {
         writer.println("<html>" +
                 "<body>"+
                 "<h1>" + inst.getNome() + "</h1>"+
-                "<p> Prioridade: " + inst.getQtd() + "</p>" +
-                "<p> Data" + inst.getDataCadastro() + "</p>"
+                "<p> Quantidade: " + inst.getQtd() + "</p>" +
+                "<p> Data de cadastro: " + inst.getDataCadastro() + "</p>"
         );
         writer.println("</body>"+
                 "</html>"
@@ -84,9 +125,34 @@ public class InstrumentoController {
             writer.println("<a href='doEditarPage?id="+i.getId()+"'>Editar</a>");
             writer.println("<a href='doExcluir?id="+i.getId()+"'>Excluir</a>");
         }
-
         writer.println("</body>" +
                 "</html>");
+    }
+    @RequestMapping(value = "/doExcluir", method = RequestMethod.GET)
+    public void apagarTarefa(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        var id = Integer.parseInt(request.getParameter("id"));
+        var dao = new InstrumentoDao();
+
+        // verifica se o instrumento existe antes de apagar
+        Instrumento i = dao.getInstrumentoById(id); //funçao de busca pra encontrar instrumento
+        if (i != null) {
+            dao.apagarInstrumento(id);
+            var writer = response.getWriter();
+            writer.println("<html>");
+            writer.println("<body>");
+            writer.println("<p> Instrumento apagado com sucesso! </p>");
+            writer.println("</body>");
+            writer.println("</html>");
+            response.sendRedirect("/doListar");
+        } else {
+            var writer = response.getWriter();
+            writer.println("<html>");
+            writer.println("<body>");
+            writer.println("<p> Instrumento não encontrada! </p>");
+            writer.println("</body>");
+            writer.println("</html>");
+            response.sendRedirect("/doListar");
+        }
     }
 
 

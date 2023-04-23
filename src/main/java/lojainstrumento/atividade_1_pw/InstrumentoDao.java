@@ -8,6 +8,41 @@ import java.util.List;
 
 public class InstrumentoDao {
 
+    public void updateInstrumento(Instrumento i) {
+
+        Connection connection = null;
+        PreparedStatement stmt = null;
+
+        try {
+            connection = Conexao.getConnection();
+
+            stmt = connection.prepareStatement("update instrumento_tbl set nome=?, qtd=?, datacadastro=? where id = ?");
+            stmt.setString(1, i.getNome());
+            stmt.setInt(2, i.getQtd());
+            stmt.setLong(3, i.getDataCadastro().getTime());
+            stmt.setInt(4, i.getId());
+
+            stmt.executeUpdate();
+            connection.close();
+        } catch (SQLException | URISyntaxException ex) {
+            System.out.println(ex);
+        }
+    }
+
+    public void apagarInstrumento(Integer id) {
+        Connection connection = null;
+        PreparedStatement stmt = null;
+        try {
+            connection = Conexao.getConnection();
+            stmt = connection.prepareStatement("DELETE FROM instrumento_tbl WHERE id = ?");
+            stmt.setInt(1, id);
+            stmt.executeUpdate();
+            connection.close();
+        } catch (SQLException | URISyntaxException ex) {
+            System.out.println("Erro ao apagar: " + ex);
+        }
+    }
+
 
     public Instrumento getInstrumentoById(Integer id) {
         Connection connection = null;
